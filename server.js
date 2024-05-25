@@ -54,14 +54,14 @@ app.get("/tasks", async (req, res) => {
 // GET /tasks/:id: Retrieve a single task by ID
 app.get("/tasks/:id", async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const taskId = req.params.id.trim(); // Trim the task ID to remove extra spaces
+    const task = await Task.findById(taskId);
     if (!task) {
-      return res.status(404).json({ msg: "Task not found" });
+      return res.status(404).send({ message: "Task not found" });
     }
-    res.json(task);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    res.send(task);
+  } catch (error) {
+    res.status(400).send({ message: "Invalid Task ID" });
   }
 });
 
@@ -106,18 +106,14 @@ app.put("/tasks/:id", async (req, res) => {
 // DELETE /tasks/:id: Delete a task by ID
 app.delete("/tasks/:id", async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
-
+    const taskId = req.params.id.trim(); // Trim the task ID to remove extra spaces
+    const task = await Task.findByIdAndDelete(taskId);
     if (!task) {
-      return res.status(404).json({ msg: "Task not found" });
+      return res.status(404).send({ message: "Task not found" });
     }
-
-    await Task.findByIdAndRemove(req.params.id);
-
-    res.json({ msg: "Task removed" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    res.send({ message: "Task deleted successfully" });
+  } catch (error) {
+    res.status(400).send({ message: "Invalid Task ID" });
   }
 });
 
